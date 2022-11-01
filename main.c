@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <X11/keysym.h>
 #include <X11/Xlib.h>
 
 /* The window which contains the text. */
@@ -56,7 +57,7 @@ static void create_window ()
                              text_box.black_pixel, /* border pixel */
                              text_box.white_pixel  /* background */);
     XSelectInput (text_box.display, text_box.window,
-                  ExposureMask);
+                  ExposureMask | KeyPressMask);
     XMapWindow (text_box.display, text_box.window);
 }
 
@@ -74,7 +75,7 @@ static void set_up_gc ()
 
 static void set_up_font ()
 {
-	const char * fontname = "-*-monospace-*-r-*-*-14-*-*-*-*-*-*-*";
+    const char * fontname = "-*-monospace-*-r-*-*-14-*-*-*-*-*-*-*";
     text_box.font = XLoadQueryFont (text_box.display, fontname);
     /* If the font could not be loaded, revert to the "fixed" font. */
     if (! text_box.font) {
@@ -110,11 +111,18 @@ static void draw_screen ()
 
 static void event_loop ()
 {
-    while (1) {
+    int quit = 0;
+    while (! quit) {
         XEvent e;
         XNextEvent (text_box.display, & e);
-        if (e.type == Expose) {
-            draw_screen ();
+        switch (e.type) {
+            case Expose:
+                draw_screen ();
+                break;
+            case KeyPress:
+                if (XLookupKeysym(&e.xkey, 0) == XK_Escape)
+                    quit = 1;
+                break;
         }
     }
 }
