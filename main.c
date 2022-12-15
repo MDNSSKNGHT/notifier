@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
+#include <X11/Xatom.h>
 
 /* The window which contains the text. */
 
@@ -20,7 +21,7 @@ struct {
     Window window;
     GC gc;
     XFontStruct * font;
-    unsigned long black_pixel;    
+    unsigned long black_pixel;
     unsigned long white_pixel;
 }
 text_box;
@@ -44,9 +45,11 @@ static void x_connect ()
 
 static void create_window ()
 {
+    Atom window_type, window_type_deskop;
+
     text_box.width = 300;
     text_box.height = 300;
-    text_box.window = 
+    text_box.window =
         XCreateSimpleWindow (text_box.display,
                              text_box.root,
                              1, /* x */
@@ -58,6 +61,13 @@ static void create_window ()
                              text_box.white_pixel  /* background */);
     XSelectInput (text_box.display, text_box.window,
                   ExposureMask | KeyPressMask);
+
+    /* behave as a floating window */
+    window_type = XInternAtom (text_box.display, "_NET_WM_WINDOW_TYPE", True);
+    window_type_deskop = XInternAtom (text_box.display, "_NET_WM_WINDOW_TYPE_DIALOG", True);
+    XChangeProperty (text_box.display, text_box.window, window_type, XA_ATOM, 32,
+                     PropModeReplace, (unsigned char*) &window_type_deskop, 1);
+
     XMapWindow (text_box.display, text_box.window);
 }
 
@@ -67,8 +77,8 @@ static void set_up_gc ()
 {
     text_box.screen = DefaultScreen (text_box.display);
     text_box.gc = XCreateGC (text_box.display, text_box.window, 0, 0);
-    XSetBackground (text_box.display, text_box.gc, text_box.white_pixel); 
-    XSetForeground (text_box.display, text_box.gc, text_box.black_pixel); 
+    XSetBackground (text_box.display, text_box.gc, text_box.white_pixel);
+    XSetForeground (text_box.display, text_box.gc, text_box.black_pixel);
 }
 
 /* Set up the text font. */
@@ -138,4 +148,3 @@ int main (int argc, char ** argv)
     event_loop ();
     return 0;
 }
-
