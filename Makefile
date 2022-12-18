@@ -7,6 +7,11 @@ build: *.c
 	@mkdir -p out
 	@${CC} $^ ${FLAGS} ${X11} -o out/${NAME}
 
+test: battery.c x.c test.c
+	@mkdir -p out
+	@${CC} $^ ${FLAGS} ${X11} -o out/test
+	@./out/test
+
 clean:
 	@rm -r out
 
