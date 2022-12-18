@@ -122,9 +122,10 @@ void draw_screen ()
 
 /* Loop over events. */
 
-void event_loop ()
+int event_loop ()
 {
-    while (! text_box.quit) {
+    int quit = 0;
+    while (! quit) {
         XEvent e;
         XNextEvent (text_box.display, & e);
         switch (e.type) {
@@ -133,8 +134,9 @@ void event_loop ()
                 break;
             case KeyPress:
                 if (XLookupKeysym(&e.xkey, 0) == XK_Escape)
-                    text_box.quit = 1;
+                    quit = 1;
                 break;
         }
     }
+    return quit;
 }

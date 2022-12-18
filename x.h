@@ -30,6 +30,6 @@ void draw_screen ();
 
 /* Loop over events. */
 
-void event_loop ();
+int event_loop ();
 
 #endif //NOTIFIER_X_H
