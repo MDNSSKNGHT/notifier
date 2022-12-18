@@ -17,6 +17,7 @@ int batt_present() {
     return -1;
   if (fgets(buff, sizeof(buff), fd) == NULL)
     return -1;
+  fclose(fd);
   return atoi(buff);
 }
 
@@ -35,5 +36,6 @@ int get_batt_level() {
     return -1;
   if (fgets(buff, sizeof(buff), fd) == NULL)
     return -1;
+  fclose(fd);
   return atoi(buff);
 }
