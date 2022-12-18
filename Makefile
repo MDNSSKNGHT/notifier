@@ -3,7 +3,7 @@ FLAGS := -Wall -Wextra -O0
 CC := cc
 NAME := notifier
 
-build: *.c
+build: battery.c x.c main.c
 	@mkdir -p out
 	@${CC} $^ ${FLAGS} ${X11} -o out/${NAME}
 
