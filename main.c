@@ -1,6 +1,8 @@
 /* Main file.
  * Just the entry point and no more.
  */
+#include <unistd.h>
+
 #include "x.h"
 #include "battery.h"
 
@@ -12,8 +14,9 @@ int main (__attribute__((unused)) int argc, __attribute__((unused)) char ** argv
             create_window ();
             set_up_gc ();
             set_up_font ();
-            if (event_loop ())
-                break;
+            event_loop ();
+            sleep (5);
+            execl ("/usr/bin/zzz", "", NULL);
         }
     }
 

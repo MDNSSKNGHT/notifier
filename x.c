@@ -33,7 +33,7 @@ text_box;
 void x_connect ()
 {
 
-    text_box.text = "Hello World";
+    text_box.text = "Low battery!, sleeping in 5 seconds.";
     text_box.text_len = strlen (text_box.text);
     text_box.display = XOpenDisplay (NULL);
     if (! text_box.display) {
