@@ -1,0 +1,4 @@
+#!/bin/sh
+
+exec 2>&1
+DISPLAY=':0' exec /usr/bin/notifier
