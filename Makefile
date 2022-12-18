@@ -1,19 +1,21 @@
-X11 := -lX11
-FLAGS := -Wall -Wextra -O0
-CC := cc
-NAME := notifier
+OUT =		notifier
+OBJ =		battery.o x.o
+CC ?=		cc
 
-build: battery.c x.c main.c
-	@mkdir -p out
-	@${CC} $^ ${FLAGS} ${X11} -o out/${NAME}
+LIB =		`pkg-config --libs x11`
 
-test: battery.c x.c test.c
-	@mkdir -p out
-	@${CC} $^ ${FLAGS} ${X11} -o out/test
-	@./out/test
+CFLAGS =	-Wall -Wextra -O0
+
+all: $(OUT)
+
+.c.o:
+	@$(CC) -c $(CFLAGS) $<
+
+$(OUT): main.o $(OBJ)
+	@$(CC) $(LDFLAGS) $^ $(LIB) -o $@
+
+test: test.o $(OBJ)
+	@$(CC) $(LDFLAGS) $^ $(LIB) -o $@
 
 clean:
-	@rm -r out
-
-run: build
-	@./out/${NAME}
+	rm -rf main.o test.o $(OBJ) $(OUT)
