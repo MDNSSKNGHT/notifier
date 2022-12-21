@@ -8,17 +8,26 @@
 
 int main (__attribute__((unused)) int argc, __attribute__((unused)) char ** argv)
 {
+    struct power_supply_t *battery = NULL;
+
+    battery = power_supply_init();
+
     while (1) {
-        if (get_batt_level() <= 5) {
+        power_supply_update(battery);
+        if (battery->capacity <= 5) {
             x_connect ();
             create_window ();
             set_up_gc ();
             set_up_font ();
-            event_loop ();
-            sleep (5);
-            execl ("/usr/bin/zzz", "", NULL);
+            if (event_loop())
+                break;
         }
     }
+
+    power_supply_free(battery);
+
+    sleep (5);
+    execl ("/usr/bin/zzz", "", NULL);
 
     return 0;
 }

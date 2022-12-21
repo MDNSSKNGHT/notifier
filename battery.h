@@ -4,12 +4,15 @@
 #ifndef NOTIFIER_BATTERY_H
 #define NOTIFIER_BATTERY_H
 
-/* Is the battery present in the device? */
+struct power_supply_t {
+    char *status;
+    long capacity;
+};
 
-int batt_present();
+struct power_supply_t *power_supply_init();
 
-/* Returns battery level (percent) as an integer or -1 if we got any error. */
+void power_supply_update(struct power_supply_t *ref);
 
-int get_batt_level();
+void power_supply_free(struct power_supply_t *ref);
 
 #endif //NOTIFIER_BATTERY_H

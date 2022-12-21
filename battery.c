@@ -1,41 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define BATT "BAT1"
-#define BATT_PATH "/sys/class/power_supply/%s/%s"
+#include "battery.h"
 
-/* Is the battery present in the device? */
+#define POWER_SUPPLY_NAME "BAT1"
+#define POWER_SUPPLY_PATH "/sys/class/power_supply/%s/%s"
 
-int batt_present() {
-  char path[0xFF];
-  char buff[0xFF];
-  FILE *fd;
-
-  if (snprintf(path, sizeof(path), BATT_PATH, BATT, "present") < 0)
-    return -1;
-  if ((fd = fopen(path, "r")) == NULL)
-    return -1;
-  if (fgets(buff, sizeof(buff), fd) == NULL)
-    return -1;
-  fclose(fd);
-  return atoi(buff);
+char *power_supply_path(char *name, char *prop)
+{
+    char path[64];
+    snprintf(path, sizeof(path), POWER_SUPPLY_PATH, name, prop);
+    return strdup(path);
 }
 
-/* Returns battery level (percent) as an integer or -1 if we got any error. */
+char *power_supply_read_prop(char *name, char *prop)
+{
+    char *path, buff[256];
+    FILE *fd;
 
-int get_batt_level() {
-  char buff[0xFF];
-  char path[0xFF];
-  FILE *fd;
+    path = power_supply_path(name, prop);
+    if ((fd = fopen(path, "r")) == NULL)
+        return NULL;
+    if (fgets(buff, sizeof(buff), fd) == NULL)
+        return NULL;
+    free(path);
+    fclose(fd);
 
-  if (!batt_present())
-    return -1;
-  if (snprintf(path, sizeof(path), BATT_PATH, BATT, "capacity") < 0)
-    return -1;
-  if ((fd = fopen(path, "r")) == NULL)
-    return -1;
-  if (fgets(buff, sizeof(buff), fd) == NULL)
-    return -1;
-  fclose(fd);
-  return atoi(buff);
+    return strdup(buff);
+}
+
+struct power_supply_t *power_supply_init()
+{
+    return malloc(sizeof(struct power_supply_t));
+}
+
+void power_supply_update(struct power_supply_t *ref)
+{
+    char *buffer;
+    char *remaining;
+
+    /* no need to free here, we're already freeing the
+     * memory address this reference points to in the
+     * `power_supply_free` function. */
+    buffer = power_supply_read_prop(POWER_SUPPLY_NAME, "status");
+    ref->status = buffer;
+
+    buffer = power_supply_read_prop(POWER_SUPPLY_NAME, "capacity");
+    ref->capacity = strtol(buffer, &remaining, 0);
+    free(buffer);
+}
+
+void power_supply_free(struct power_supply_t *ref)
+{
+    free(ref->status);
+    free(ref);
 }
